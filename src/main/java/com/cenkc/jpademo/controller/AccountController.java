@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 /**
  * Account Controller
@@ -77,5 +78,20 @@ public class AccountController {
     public ResponseEntity delete(@PathVariable String name) {
         accountService.deleteAccount(name);
         return ResponseEntity.ok().build();
+    }
+
+    @ApiOperation(value = "Lists existing accounts")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Accounts listing completed"),
+            @ApiResponse(code = 204, message = "Could not find any Accounts"),
+            @ApiResponse(code = 500, message = "Internal server error")
+    })
+    @GetMapping()
+    public ResponseEntity<List<Account>> listAccounts() {
+        final List<Account> accounts = accountService.getAllAccounts();
+        if (accounts.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(accounts, HttpStatus.OK);
     }
 }

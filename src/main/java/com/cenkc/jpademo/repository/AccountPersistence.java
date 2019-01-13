@@ -2,6 +2,8 @@ package com.cenkc.jpademo.repository;
 
 import com.cenkc.jpademo.model.Account;
 
+import java.util.List;
+
 /**
  * created by cenkc on 12/31/2018
  */
@@ -14,4 +16,6 @@ public interface AccountPersistence {
     Account findByName (String name);
 
     void delete(Account account);
+
+    List<Account> findAll();
 }

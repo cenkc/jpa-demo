@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Account Service Implementation
@@ -108,5 +109,17 @@ public class AccountServiceImpl implements AccountService {
         }
         Date lastLoggedInDate = account.getLastLogin();
         return lastLoggedInDate.after(date);
+    }
+
+    /**
+     * @return list of accounts
+     */
+    @Override
+    public List<Account> getAllAccounts() {
+        List<Account> accounts = accountPersistence.findAll();
+        if (accounts == null) {
+            throw new AccountServiceException("Could not find any Accounts");
+        }
+        return accounts;
     }
 }
