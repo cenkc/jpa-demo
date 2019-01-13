@@ -3,6 +3,7 @@ package com.cenkc.jpademo.service;
 import com.cenkc.jpademo.model.Account;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Service Interface for Account Management
@@ -50,4 +51,9 @@ public interface AccountService {
      * @throws com.cenkc.jpademo.exception.AccountServiceException if any errors occur
      */
     boolean hasLoggedInSince(String username, Date date);
+
+    /**
+     * @return list of accounts
+     */
+    List<Account> getAllAccounts();
 }

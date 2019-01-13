@@ -4,6 +4,8 @@ import com.cenkc.jpademo.model.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Account persistence implementation
  *
@@ -55,5 +57,13 @@ public class AccountPersistenceImpl implements AccountPersistence {
     @Override
     public void delete(Account account) {
         accountRepository.deleteById(account.getId());
+    }
+
+    /**
+     * @return list of account
+     */
+    @Override
+    public List<Account> findAll() {
+        return accountRepository.findAll();
     }
 }
