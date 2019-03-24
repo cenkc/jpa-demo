@@ -44,6 +44,9 @@ public class AccountController {
     @ApiOperation(value = "Registers a new Account, if the user does not exists yet and logs in the user",
             response = Account.class,
             consumes = "application/json")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "registration", value = "Registration object itself", required = true, dataType = "Registration", paramType = "body")
+    })
     @ApiResponses(value =  {
             @ApiResponse(code = 200, message = "Registration completed", response = Account.class),
             @ApiResponse(code = 500, message = "Internal server error")
@@ -56,20 +59,26 @@ public class AccountController {
 
     @ApiOperation(value = "Checks if a user has logged in since a provided timestamp.",
             response = Boolean.class)
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "date", value = "User has logged in since", required = true, dataType = "string", paramType = "body"),
+            @ApiImplicitParam(name = "username", value = "User's name", required = true, dataType = "string", paramType = "body")
+    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User has logged in since a provided timestamp (TRUE|FALSE)", response = Boolean.class),
             @ApiResponse(code = 500, message = "Internal server error")
     })
     @PostMapping(value = "/loggeddate")
     public ResponseEntity<Boolean> loggedInSince(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-                                                     @RequestParam("date")LocalDate localDate,
-                                                 @RequestParam("username") String name) {
-
+                                                     @RequestParam("date") LocalDate localDate,
+                                                     @RequestParam("username") String name) {
         final boolean hasLoggedInSince = accountService.hasLoggedInSince(name, DemoUtils.convertLocalDateToDate(localDate));
         return new ResponseEntity<>(hasLoggedInSince, HttpStatus.OK);
     }
 
     @ApiOperation(value = "Deletes an Account, if it exists")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "name", value = "User's name", required = true, dataType = "String", paramType = "query")
+    })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Deletion completed"),
             @ApiResponse(code = 500, message = "Internal server error")
