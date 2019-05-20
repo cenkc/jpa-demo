@@ -11,19 +11,13 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -31,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -41,14 +34,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = AccountController.class)
-//@AutoConfigureMockMvc
 public class AccountControllerTest {
 
     @Autowired
     private MockMvc mvc;
-
-//    @Autowired
-//    WebApplicationContext webApplicationContext;
 
     @MockBean
     private AccountService accountService;
@@ -60,9 +49,6 @@ public class AccountControllerTest {
 
     @Before
     public void setUp() throws IOException {
-        //MockitoAnnotations.initMocks(this);
-        //this.mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).dispatchOptions(true).build();
-
         cenkc = new AccountBuilder().username("cenkc").email("cenkcan@cenkc.com").build();
         cenkc.setLastLogin(new Date());
         cenkc.setEncryptedPassword(DemoUtils.encrypt("12345"));
@@ -245,16 +231,45 @@ public class AccountControllerTest {
     }
 
     @Test
-    public void delete() throws Exception {
+    public void whenDelete_thenReturnOk() throws Exception {
         String urlTemplate = "/accounts/{name}";
-        doNothing().when(accountService).deleteAccount(anyString());
-        MvcResult mvcResult = mvc.perform(
+        // 1 means that we have updated 1 record
+        when(accountService.deleteAccount(anyString())).thenReturn(1);
+        mvc.perform(
                 MockMvcRequestBuilders.delete(urlTemplate, "cenkc")
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+        ).andDo(print())
+                .andExpect(status().isOk());
         verify(accountService, times(1)).deleteAccount(anyString());
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(HttpStatus.OK.value(), status);
+    }
+
+    @Test
+    public void whenDeleteWithNonExistingUsername_thenReturnNoContent() throws Exception {
+        String urlTemplate = "/accounts/{name}";
+        // 1 means that we can not update any records
+        when(accountService.deleteAccount(anyString())).thenReturn(0);
+        mvc.perform(
+                MockMvcRequestBuilders.delete(urlTemplate, "cenkc")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andDo(print())
+                .andExpect(status().isNoContent());
+
+        verify(accountService, times(1)).deleteAccount(anyString());
+    }
+
+    @Test
+    public void whenDeleteReturnedOtherThanOneOrZero_thenReturnBadRequest() throws Exception {
+        String urlTemplate = "/accounts/{name}";
+        when(accountService.deleteAccount(anyString())).thenReturn(2);
+        mvc.perform(
+                MockMvcRequestBuilders.delete(urlTemplate, "cenkc")
+                        .accept(MediaType.APPLICATION_JSON)
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andDo(print())
+                .andExpect(status().isBadRequest());
+
+        verify(accountService, times(1)).deleteAccount(anyString());
     }
 }

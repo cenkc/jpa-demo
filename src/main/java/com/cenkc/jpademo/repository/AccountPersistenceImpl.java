@@ -55,8 +55,8 @@ public class AccountPersistenceImpl implements AccountPersistence {
      * @param account Account to be deleted
      */
     @Override
-    public void delete(Account account) {
-        accountRepository.deleteById(account.getId());
+    public int delete(Account account) {
+        return accountRepository.deleteByAccountId(account.getId());
     }
 
     /**

@@ -40,7 +40,7 @@ public interface AccountService {
      * @param username the User's name
      * @throws com.cenkc.jpademo.exception.AccountServiceException if any errors occur
      */
-    void deleteAccount(String username);
+    int deleteAccount(String username);
 
     /**
      * Checks if a user has logged in since a provided timestamp.

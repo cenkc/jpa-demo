@@ -51,7 +51,7 @@ public interface AccountControllerInterface {
 
     @ApiOperation(value = "Deletes an Account, if it exists")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "name", value = "User's name", required = true, dataType = "String", paramType = "query")
+            @ApiImplicitParam(name = "name", value = "User's name", required = true, dataType = "String", paramType = "path")
     })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Deletion completed"),

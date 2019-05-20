@@ -51,9 +51,16 @@ public class AccountController implements AccountControllerInterface {
 
     @Override
     @DeleteMapping(value = "/{name}")
-    public ResponseEntity delete(@PathVariable String name) {
-        accountService.deleteAccount(name);
-        return ResponseEntity.ok().build();
+    public ResponseEntity delete(@PathVariable(value = "name") String username) {
+        int deletionStatus = accountService.deleteAccount(username);
+        if (deletionStatus == 1) {
+            return ResponseEntity.ok().build();
+        } else if (deletionStatus == 0) {
+            //no user found
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @Override

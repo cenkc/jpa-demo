@@ -19,6 +19,6 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
     @Transactional
     @Modifying
     @Query("UPDATE Account SET deleted=true WHERE id = :accountId")
-    void deleteById(@Param("accountId") Long id);
+    int deleteByAccountId(@Param("accountId") Long id);
 
 }

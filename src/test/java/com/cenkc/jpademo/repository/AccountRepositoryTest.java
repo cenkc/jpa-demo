@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
@@ -68,7 +69,13 @@ public class AccountRepositoryTest {
     }
 
     @Test
-    public void deleteById() {
+    @Transactional
+    public void whenDeleteByAccountId_shouldChangeIsDeletedStatus() {
+        entityManager.persist(account);
+        entityManager.flush();
+        Account found = accountRepository.findByUsername("cenk");
 
+        int deleteStatus = accountRepository.deleteByAccountId(found.getId());
+        assertThat(deleteStatus).isEqualTo(1);
     }
 }
