@@ -32,22 +32,23 @@ import java.util.Date;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = AccountController.class)
-@AutoConfigureMockMvc
+//@AutoConfigureMockMvc
 public class AccountControllerTest {
 
     @Autowired
     private MockMvc mvc;
 
-    @Autowired
-    WebApplicationContext webApplicationContext;
+//    @Autowired
+//    WebApplicationContext webApplicationContext;
 
     @MockBean
     private AccountService accountService;
@@ -59,13 +60,14 @@ public class AccountControllerTest {
 
     @Before
     public void setUp() throws IOException {
-        MockitoAnnotations.initMocks(this);
-        this.mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).dispatchOptions(true).build();
+        //MockitoAnnotations.initMocks(this);
+        //this.mvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).dispatchOptions(true).build();
 
         cenkc = new AccountBuilder().username("cenkc").email("cenkcan@cenkc.com").build();
         cenkc.setLastLogin(new Date());
         cenkc.setEncryptedPassword(DemoUtils.encrypt("12345"));
         cenkc.setSalt(new String(DemoUtils.getSalt()));
+        cenkc.setId(1L);
 
         ObjectNode loggedDateNode = objectMapper.createObjectNode();
         loggedDateNode.put("date", LocalDate.now().toString());
@@ -83,22 +85,51 @@ public class AccountControllerTest {
 
         when(accountService.register(anyString(), anyString(), anyString())).thenReturn(cenkc);
 
+        String username = "cenkc";
+        String email = "cenkc@cenkc.com";
+        String password = "somepass";
+
         Registration registration = new Registration();
-        registration.setUsername("cenkc");
-        registration.setEmail("cenkc@cenkc.com");
-        registration.setPassword("somepass");
+        registration.setUsername(username);
+        registration.setEmail(email);
+        registration.setPassword(password);
         String registerRequestBody = objectMapper.writeValueAsString(registration);
 
-
-        MvcResult mvcResult = mvc.perform(
+        mvc.perform(
                 post(uri)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(registerRequestBody))
-                .andReturn();
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.username").exists())
+                .andExpect(jsonPath("$.username").isString())
+                .andExpect(jsonPath("$.username").isNotEmpty())
+                .andExpect(jsonPath("$.username").value(cenkc.getUsername()))
+                .andExpect(jsonPath("$.email").exists())
+                .andExpect(jsonPath("$.email").isString())
+                .andExpect(jsonPath("$.email").isNotEmpty())
+                .andExpect(jsonPath("$.email").value(cenkc.getEmail()))
+                .andExpect(jsonPath("$.encryptedPassword").exists())
+                .andExpect(jsonPath("$.encryptedPassword").isString())
+                .andExpect(jsonPath("$.encryptedPassword").isNotEmpty())
+                .andExpect(jsonPath("$.salt").exists())
+                .andExpect(jsonPath("$.salt").isString())
+                .andExpect(jsonPath("$.salt").isNotEmpty())
+                .andExpect(jsonPath("$.deleted").exists())
+                .andExpect(jsonPath("$.deleted").isBoolean())
+                .andExpect(jsonPath("$.deleted").value(false))
+                .andExpect(jsonPath("$.lastLogin").exists())
+                .andExpect(jsonPath("$.lastLogin").isString())
+                .andExpect(jsonPath("$.lastLogin").isNotEmpty())
+        ;
+
         verify(accountService, times(1)).register(anyString(), anyString(), anyString());
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(HttpStatus.OK.value(), status);
     }
 
     @Test
@@ -110,34 +141,59 @@ public class AccountControllerTest {
         Credential credential = new Credential("cenkc", "12345");
         String loginRequestBody = objectMapper.writeValueAsString(credential);
 
-        MvcResult mvcResult = mvc.perform(
+        mvc.perform(
                 post(uri)
                         .accept(MediaType.APPLICATION_JSON)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(loginRequestBody)
-        ).andReturn();
+                        .content(loginRequestBody))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.id").isNumber())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.username").exists())
+                .andExpect(jsonPath("$.username").isString())
+                .andExpect(jsonPath("$.username").isNotEmpty())
+                .andExpect(jsonPath("$.username").value(cenkc.getUsername()))
+                .andExpect(jsonPath("$.email").exists())
+                .andExpect(jsonPath("$.email").isString())
+                .andExpect(jsonPath("$.email").isNotEmpty())
+                .andExpect(jsonPath("$.email").value(cenkc.getEmail()))
+                .andExpect(jsonPath("$.encryptedPassword").exists())
+                .andExpect(jsonPath("$.encryptedPassword").isString())
+                .andExpect(jsonPath("$.encryptedPassword").isNotEmpty())
+                .andExpect(jsonPath("$.salt").exists())
+                .andExpect(jsonPath("$.salt").isString())
+                .andExpect(jsonPath("$.salt").isNotEmpty())
+                .andExpect(jsonPath("$.deleted").exists())
+                .andExpect(jsonPath("$.deleted").isBoolean())
+                .andExpect(jsonPath("$.deleted").value(false))
+                .andExpect(jsonPath("$.lastLogin").exists())
+                .andExpect(jsonPath("$.lastLogin").isString())
+                .andExpect(jsonPath("$.lastLogin").isNotEmpty())
+        ;
+
+
         verify(accountService, times(1)).login(anyString(), anyString());
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(HttpStatus.OK.value(), status);
     }
 
     @Test
     public void loggedInSince() throws Exception {
-/*
         String uri = "/accounts/loggeddate";
-        when(accountService.hasLoggedInSince(anyString(), any())).thenReturn(true);
-
-        MvcResult mvcResult = mvc.perform(
-                post(uri)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(loggedDateJsonString)
-        ).andReturn();
-//        System.out.println("---->" + mvcResult.getResponse());
-//        verify(accountService, times(1)).hasLoggedInSince(anyString(), any());
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(HttpStatus.OK.value(), status);
-*/
+        mvc.perform(
+                get(uri)
+                        .param("date", anyString())
+                        .param("username", anyString())
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$").value(false))
+        ;
+        //verify(accountService, times(1)).hasLoggedInSince(anyString(), any(Date.class));
     }
 
     @Test
@@ -145,14 +201,47 @@ public class AccountControllerTest {
         String uri = "/accounts";
         when(accountService.getAllAccounts()).thenReturn(accounts);
 
-        MvcResult mvcResult = mvc.perform(
+        mvc.perform(
                 get(uri)
                         .accept(MediaType.APPLICATION_JSON)
-                        .contentType(MediaType.APPLICATION_JSON)
-        ).andReturn();
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isNotEmpty())
+                .andExpect(jsonPath("$.[0]").exists())
+                .andExpect(jsonPath("$.[0]").isNotEmpty())
+                .andExpect(jsonPath("$.[0].id").exists())
+                .andExpect(jsonPath("$.[0].id").isNumber())
+                .andExpect(jsonPath("$.[0].id").isNotEmpty())
+                .andExpect(jsonPath("$.[0].id").value(1L))
+                .andExpect(jsonPath("$.[0].username").exists())
+                .andExpect(jsonPath("$.[0].username").isString())
+                .andExpect(jsonPath("$.[0].username").isNotEmpty())
+                .andExpect(jsonPath("$.[0].username").value(cenkc.getUsername()))
+                .andExpect(jsonPath("$.[0].email").exists())
+                .andExpect(jsonPath("$.[0].email").isString())
+                .andExpect(jsonPath("$.[0].email").isNotEmpty())
+                .andExpect(jsonPath("$.[0].email").value(cenkc.getEmail()))
+                .andExpect(jsonPath("$.[0].encryptedPassword").exists())
+                .andExpect(jsonPath("$.[0].encryptedPassword").isString())
+                .andExpect(jsonPath("$.[0].encryptedPassword").isNotEmpty())
+                .andExpect(jsonPath("$.[0].salt").exists())
+                .andExpect(jsonPath("$.[0].salt").isString())
+                .andExpect(jsonPath("$.[0].salt").isNotEmpty())
+                .andExpect(jsonPath("$.[0].deleted").exists())
+                .andExpect(jsonPath("$.[0].deleted").isBoolean())
+                .andExpect(jsonPath("$.[0].deleted").value(false))
+                .andExpect(jsonPath("$.[0].lastLogin").exists())
+                .andExpect(jsonPath("$.[0].lastLogin").isString())
+                .andExpect(jsonPath("$.[0].lastLogin").isNotEmpty())
+                .andExpect(jsonPath("$.[1]").exists())
+                .andExpect(jsonPath("$.[1]").isNotEmpty())
+        ;
+
         verify(accountService, times(1)).getAllAccounts();
-        int status = mvcResult.getResponse().getStatus();
-        assertEquals(HttpStatus.OK.value(), status);
     }
 
     @Test

@@ -4,15 +4,14 @@ import com.cenkc.jpademo.model.Account;
 import com.cenkc.jpademo.model.Credential;
 import com.cenkc.jpademo.model.Registration;
 import com.cenkc.jpademo.service.AccountService;
-import com.cenkc.jpademo.util.DemoUtils;
-import io.swagger.annotations.*;
+import io.swagger.annotations.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,10 +42,10 @@ public class AccountController implements AccountControllerInterface {
     }
 
     @Override
-    @PostMapping(value = "/loggeddate")
-    public ResponseEntity<Boolean> loggedInSince(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate,
+    @GetMapping(value = "/loggeddate")
+    public ResponseEntity<Boolean> loggedInSince(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date date,
                                                  @RequestParam("username") String name) {
-        final boolean hasLoggedInSince = accountService.hasLoggedInSince(name, DemoUtils.convertLocalDateToDate(localDate));
+        final boolean hasLoggedInSince = accountService.hasLoggedInSince(name, date);
         return new ResponseEntity<>(hasLoggedInSince, HttpStatus.OK);
     }
 

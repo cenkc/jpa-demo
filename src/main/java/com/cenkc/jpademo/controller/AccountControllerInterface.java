@@ -6,9 +6,11 @@ import com.cenkc.jpademo.model.Registration;
 import io.swagger.annotations.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 public interface AccountControllerInterface {
@@ -37,14 +39,14 @@ public interface AccountControllerInterface {
             response = Boolean.class,
             consumes = "application/json")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "date", value = "User has logged in since", required = true, dataType = "string", paramType = "body"),
-            @ApiImplicitParam(name = "username", value = "User's name", required = true, dataType = "string", paramType = "body")
+            @ApiImplicitParam(name = "date", value = "User has logged in since", required = true, dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "username", value = "User's name", required = true, dataType = "string", paramType = "query")
     })
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User has logged in since a provided timestamp (TRUE|FALSE)", response = Boolean.class),
             @ApiResponse(code = 500, message = "Internal server error")
     })
-    ResponseEntity<Boolean> loggedInSince(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate localDate,
+    ResponseEntity<Boolean> loggedInSince(@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date date,
                                           @RequestParam("username") String name);
 
     @ApiOperation(value = "Deletes an Account, if it exists")
