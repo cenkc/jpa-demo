@@ -15,7 +15,7 @@ public interface AccountPersistence {
 
     Account findByName (String name);
 
-    void delete(Account account);
+    int delete(Account account);
 
     List<Account> findAll();
 }

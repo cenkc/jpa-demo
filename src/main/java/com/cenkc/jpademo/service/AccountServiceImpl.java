@@ -85,12 +85,12 @@ public class AccountServiceImpl implements AccountService {
      * @throws AccountServiceException
      */
     @Override
-    public void deleteAccount(String username) {
+    public int deleteAccount(String username) {
         Account account = accountPersistence.findByName(username);
         if (account == null) {
             throw new AccountServiceException("Account not found for Username:" + username);
         }
-        accountPersistence.delete(account);
+        return accountPersistence.delete(account);
     }
 
     /**
